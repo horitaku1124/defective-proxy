@@ -8,7 +8,7 @@ class Main {
     fun main(args: Array<String>) {
       val downPort = args[0].toInt()
       val upPort = args[1].toInt()
-      val pattern = if (args.size > 2) args[2] else "com.github.horitaku1124.kotlin.Transfer"
+      val pattern = if (args.size > 2) args[2] else "Transfer"
       val proxySock = ServerSocket(downPort)
 
       println("$downPort -> $upPort")
@@ -18,11 +18,17 @@ class Main {
 
         val clientSocket = Socket("localhost", upPort)
 
-        if (pattern == "com.github.horitaku1124.kotlin.AutoClose") {
+        if (pattern == "AutoClose") {
           val autoClose = AutoClose(accept!!, clientSocket)
           autoClose.timeout = args[3].toLong()
           autoClose.start()
           autoClose.join()
+          break
+        } else if (pattern == "NoPipe") {
+          val noPipe = NoPipe(accept!!, clientSocket)
+          noPipe.timeout = args[3].toLong()
+          noPipe.start()
+          noPipe.join()
           break
         } else {
           val transfer = Transfer(accept!!, clientSocket)
