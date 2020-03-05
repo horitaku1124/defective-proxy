@@ -8,26 +8,36 @@ class Transfer(private var lower: Socket, var upper: Socket) : java.lang.Thread(
     val toUpper = upper.getOutputStream()
 
     val buf = ByteArray(1024 * 1024)
-    while (lower.isConnected && !lower.isClosed) {
+    while (lower.isConnected && !lower.isClosed && upper.isConnected && !upper.isClosed) {
+//      println("fromLower.available()=" + fromLower.available())
       if (fromLower.available() > 0) {
         var len = fromLower.read(buf)
         if (len < 0) {
           break
         }
-        println("> " + len)
+        var limit = if (len > 20) 20 else len
+        println("> " + len + " " + String(buf, 0, limit))
         toUpper.write(buf, 0, len)
       }
 
+//      println("fromUpper.available()=" + fromUpper.available())
       if (fromUpper.available() > 0) {
         var len = fromUpper.read(buf)
         if (len < 0) {
           break
         }
-        println("< " + len)
+        var limit = if (len > 20) 20 else len
+        println("<" + len + " " + String(buf, 0, limit))
         toLower.write(buf, 0, len)
       }
-      Thread.sleep(10)
+      Thread.sleep(50)
     }
     println("finish")
+    fromLower.close()
+    toLower.close()
+    fromUpper.close()
+    toUpper.close()
+    println("close")
+
   }
 }
