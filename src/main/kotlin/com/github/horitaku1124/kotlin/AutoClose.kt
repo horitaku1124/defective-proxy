@@ -1,6 +1,7 @@
 package com.github.horitaku1124.kotlin
 
 import java.net.Socket
+import com.github.horitaku1124.kotlin.util.ByteUtils.Companion.sliceToStr
 
 class AutoClose(private var lower: Socket, var upper: Socket) : java.lang.Thread() {
   var timeout: Long = 0
@@ -19,8 +20,7 @@ class AutoClose(private var lower: Socket, var upper: Socket) : java.lang.Thread
         if (len < 0) {
           break
         }
-        var limit = if (len > 20) 20 else len
-        println(">>>" + len + " " + String(buf, 0, limit))
+        println(">>>" + len + " " + sliceToStr(buf, 20))
         toUpper.write(buf, 0, len)
       }
 
@@ -30,11 +30,10 @@ class AutoClose(private var lower: Socket, var upper: Socket) : java.lang.Thread
         if (len < 0) {
           break
         }
-        var limit = if (len > 20) 20 else len
-        println("<<<" + len + " " + String(buf, 0, limit))
+        println(">>>" + len + " " + sliceToStr(buf, 20))
         toLower.write(buf, 0, len)
       }
-      Thread.sleep(50)
+      sleep(50)
 
       var elapsed = System.currentTimeMillis() - started
       if (elapsed > timeout) {
@@ -47,6 +46,8 @@ class AutoClose(private var lower: Socket, var upper: Socket) : java.lang.Thread
     toLower.close()
     fromUpper.close()
     toUpper.close()
+    lower.close()
+    upper.close()
     println("close")
 
   }

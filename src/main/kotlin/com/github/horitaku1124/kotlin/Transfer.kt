@@ -1,5 +1,6 @@
 package com.github.horitaku1124.kotlin
 
+import com.github.horitaku1124.kotlin.util.ByteUtils.Companion.sliceToStr
 import java.net.Socket
 
 class Transfer(private var lower: Socket, var upper: Socket) : java.lang.Thread() {
@@ -13,32 +14,32 @@ class Transfer(private var lower: Socket, var upper: Socket) : java.lang.Thread(
     while (lower.isConnected && !lower.isClosed && upper.isConnected && !upper.isClosed) {
 //      println("fromLower.available()=" + fromLower.available())
       if (fromLower.available() > 0) {
-        var len = fromLower.read(buf)
+        val len = fromLower.read(buf)
         if (len < 0) {
           break
         }
-        var limit = if (len > 20) 20 else len
-        println(">>>" + len + " " + String(buf, 0, limit))
+        println(">>>" + len + " " + sliceToStr(buf, 20))
         toUpper.write(buf, 0, len)
       }
 
 //      println("fromUpper.available()=" + fromUpper.available())
       if (fromUpper.available() > 0) {
-        var len = fromUpper.read(buf)
+        val len = fromUpper.read(buf)
         if (len < 0) {
           break
         }
-        var limit = if (len > 20) 20 else len
-        println("<<<" + len + " " + String(buf, 0, limit))
+        println("<<<" + len + " " + sliceToStr(buf, 20))
         toLower.write(buf, 0, len)
       }
-      Thread.sleep(50)
+      sleep(50)
     }
     println("finish")
     fromLower.close()
     toLower.close()
     fromUpper.close()
     toUpper.close()
+    lower.close()
+    upper.close()
     println("close")
 
   }
