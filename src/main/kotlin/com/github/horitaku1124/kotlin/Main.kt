@@ -19,7 +19,7 @@ class Main {
       val pattern = if (args.size > 2) args[2] else "Transfer"
       val proxySock = ServerSocket(downPort)
 
-      println("$downPort -> $port")
+      println("$downPort -> ${host}:${port}")
       while (true) {
         println("*start accept")
         val accept = proxySock.accept()
