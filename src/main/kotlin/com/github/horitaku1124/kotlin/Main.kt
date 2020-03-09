@@ -32,6 +32,11 @@ class Main {
           autoClose.start()
           autoClose.join()
           break
+        } else if (pattern == "BrokenData") {
+          val broken = BrokenData(accept!!, clientSocket)
+          broken.start()
+          broken.join()
+          break
         } else if (pattern == "NoPipe") {
           val noPipe = NoPipe(accept!!, clientSocket)
           noPipe.timeout = args[3].toLong()
