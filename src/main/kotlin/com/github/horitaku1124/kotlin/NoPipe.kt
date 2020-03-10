@@ -1,5 +1,7 @@
 package com.github.horitaku1124.kotlin
 
+import com.github.horitaku1124.kotlin.util.ByteUtils
+import com.github.horitaku1124.kotlin.util.ByteUtils.Companion.sliceToStr
 import java.net.Socket
 
 class NoPipe(private var lower: Socket, var upper: Socket) : java.lang.Thread() {
@@ -7,34 +9,48 @@ class NoPipe(private var lower: Socket, var upper: Socket) : java.lang.Thread() 
   var timeout: Long = 0
   override fun run() {
     val buf = ByteArray(1024 * 1024)
-    var started = System.currentTimeMillis()
+    val started = System.currentTimeMillis()
     while (lower.isConnected && !lower.isClosed && upper.isConnected && !upper.isClosed) {
 //      println("fromLower.available()=" + fromLower.available())
-      var elapsed = System.currentTimeMillis() - started
+      val elapsed = System.currentTimeMillis() - started
       if (elapsed < timeout) {
-
         if (cm.fromLower.available() > 0) {
-          var len = cm.fromLower.read(buf)
+          val len = cm.fromLower.read(buf)
           if (len < 0) {
             break
           }
-          var limit = if (len > 20) 20 else len
-          println(">>>" + len + " " + String(buf, 0, limit))
+          println(">>>" + len + " " + sliceToStr(buf, 20))
           cm.toUpper.write(buf, 0, len)
         }
 
 //      println("fromUpper.available()=" + fromUpper.available())
         if (cm.fromUpper.available() > 0) {
-          var len = cm.fromUpper.read(buf)
+          val len = cm.fromUpper.read(buf)
           if (len < 0) {
             break
           }
-          var limit = if (len > 20) 20 else len
-          println("<<<" + len + " " + String(buf, 0, limit))
+          println("<<<" + len + " " + sliceToStr(buf, 20))
           cm.toLower.write(buf, 0, len)
         }
+      } else {
+        if (cm.fromLower.available() > 0) {
+          val len = cm.fromLower.read(buf)
+          if (len < 0) {
+            break
+          }
+          println(">>>" + len)
+        }
+
+//      println("fromUpper.available()=" + fromUpper.available())
+        if (cm.fromUpper.available() > 0) {
+          val len = cm.fromUpper.read(buf)
+          if (len < 0) {
+            break
+          }
+          println("<<<" + len)
+        }
       }
-      sleep(50)
+      sleep(10)
     }
     println("finish")
     cm.fromLower.close()
