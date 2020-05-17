@@ -1,9 +1,20 @@
 package com.github.horitaku1124.kotlin
+import java.io.BufferedWriter
 import java.net.ServerSocket
 import java.net.Socket
+import java.nio.file.Files
+import java.nio.file.Path
 
 class Main {
   companion object {
+    var logger: BufferedWriter? = null
+    fun myLogger(): BufferedWriter {
+      if (logger == null) {
+        logger = Files.newBufferedWriter(Path.of("./bin.log"))
+      }
+      return logger!!
+    }
+
     @JvmStatic
     fun main(args: Array<String>) {
       val downPort = args[0].toInt()
@@ -43,11 +54,18 @@ class Main {
           noPipe.start()
           noPipe.join()
           break
+        } else if (pattern == "Logging") {
+          val transfer = LoggingTransfer(accept!!, clientSocket, myLogger())
+          transfer.start()
+          break
         } else {
           val transfer = Transfer(accept!!, clientSocket)
           transfer.start()
         }
       }
+//      if (logger != null) {
+//        logger!!.close()
+//      }
     }
   }
 }
