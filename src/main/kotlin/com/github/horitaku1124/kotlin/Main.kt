@@ -57,7 +57,6 @@ class Main {
         } else if (pattern == "Logging") {
           val transfer = LoggingTransfer(accept!!, clientSocket, myLogger())
           transfer.start()
-          break
         } else {
           val transfer = Transfer(accept!!, clientSocket)
           transfer.start()

@@ -4,10 +4,12 @@ import com.github.horitaku1124.kotlin.util.ByteUtils.Companion.sliceToStr
 import java.io.BufferedWriter
 import java.net.Socket
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class LoggingTransfer(private var lower: Socket, var upper: Socket, var logger: BufferedWriter) : java.lang.Thread() {
   private var cm: CommunicationManager = CommunicationManager(lower, upper)
+  var formatter = DateTimeFormatter.ofPattern("MM-dd'T'HH:mm:ss.SSS")
   override fun run() {
     val buf = ByteArray(1024 * 1024)
     while (lower.isConnected && !lower.isClosed && upper.isConnected && !upper.isClosed) {
@@ -21,7 +23,7 @@ class LoggingTransfer(private var lower: Socket, var upper: Socket, var logger: 
         logger.write(
           String.format("% 4d %s >> % 6d %s\n",
             currentThread().id,
-            LocalDateTime.now().toString(),
+            LocalDateTime.now().format(formatter),
             len,
             sliceToStr(buf, 150)
         ))
@@ -39,7 +41,7 @@ class LoggingTransfer(private var lower: Socket, var upper: Socket, var logger: 
         logger.write(
           String.format("% 4d %s << % 6d %s\n",
             currentThread().id,
-            LocalDateTime.now().toString(),
+            LocalDateTime.now().format(formatter),
             len,
             sliceToStr(buf, 150)
           ))
